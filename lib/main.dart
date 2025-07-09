@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:recipe_log/utils/auth.utils.dart';
 import 'pages/login_page.dart';
 import 'pages/home_page.dart';
 
@@ -9,11 +10,10 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // 임시 로그인 상태 (예제용)
-  final bool isLoggedIn = false;
-
   @override
   Widget build(BuildContext context) {
+    final bool isLoggedIn = checkIsLoggedIn();
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(

@@ -7,17 +7,12 @@ import 'package:web/web.dart' as web;
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
-  void _kakaoLogin() async {
+  void _kakaoLogin() {
     final baseUrl = BASE_URL;
     final currentUrl = Uri.encodeComponent(web.window.location.href);
     final callbackUrl = '$baseUrl/auth/kakao/login?redirect=$currentUrl';
-    final Uri url = Uri.parse(callbackUrl);
 
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      print('Could not launch $callbackUrl');
-    }
+    web.window.location.href = callbackUrl;
   }
 
   @override

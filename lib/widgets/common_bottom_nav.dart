@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CommonBottomNav extends StatelessWidget {
-  final int currentIndex;
+  final int? currentIndex;
 
   const CommonBottomNav({super.key, required this.currentIndex});
 
@@ -23,10 +23,12 @@ class CommonBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isNoneSelected = currentIndex == null;
+
     return BottomNavigationBar(
-      currentIndex: currentIndex,
+      currentIndex: currentIndex ?? 0,
       onTap: (index) => _onTap(context, index),
-      selectedItemColor: Colors.black,
+      selectedItemColor: isNoneSelected ? Colors.grey : Colors.black,
       unselectedItemColor: Colors.grey,
       backgroundColor: Colors.white,
       items: const [

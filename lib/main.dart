@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:recipe_log/pages/myrecipe_page.dart';
+import 'package:recipe_log/pages/recipe_detail_page.dart';
 import 'package:recipe_log/pages/search_page.dart';
 import 'package:recipe_log/utils/auth.utils.dart';
 import 'pages/login_page.dart';
@@ -36,6 +37,16 @@ class MyApp extends StatelessWidget {
         if (uri.path == '/search') {
           return MaterialPageRoute(
             builder: (context) => const SearchPage(),
+            settings: settings,
+          );
+        }
+
+        // ✅ /recipes/:id 처리
+        if (uri.pathSegments.length == 2 &&
+            uri.pathSegments.first == 'recipes') {
+          final id = uri.pathSegments[1];
+          return MaterialPageRoute(
+            builder: (context) => RecipeDetailPage(id: id),
             settings: settings,
           );
         }

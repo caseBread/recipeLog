@@ -35,7 +35,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       final recipeUrl = Uri.parse('$BASE_URL/recipes/${widget.id}');
       final recipeRes = await httpClient.get(recipeUrl);
 
-      if (recipeRes.statusCode == 200) {
+      if (recipeRes.statusCode >= 200 && recipeRes.statusCode < 300) {
         final recipeData = jsonDecode(utf8.decode(recipeRes.bodyBytes));
 
         // 2️⃣ 노트 정보 가져오기
@@ -43,7 +43,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         final noteRes = await httpClient.get(noteUrl);
 
         String noteContent = '';
-        if (noteRes.statusCode == 200) {
+        if (noteRes.statusCode >= 200 && noteRes.statusCode < 300) {
           final noteData = jsonDecode(utf8.decode(noteRes.bodyBytes));
           noteContent = noteData['content'] ?? '';
         }

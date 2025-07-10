@@ -42,7 +42,7 @@ class _SearchPageState extends State<SearchPage> {
 
     try {
       final res = await httpClient.get(url);
-      if (res.statusCode == 200) {
+      if (res.statusCode >= 200 && res.statusCode < 300) {
         final data = jsonDecode(utf8.decode(res.bodyBytes));
 
         setState(() {

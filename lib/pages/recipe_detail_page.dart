@@ -19,9 +19,12 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
   bool isLoading = true;
   bool hasError = false;
 
+  late TextEditingController noteController;
+
   @override
   void initState() {
     super.initState();
+    noteController = TextEditingController();
     _fetchRecipeDetail();
   }
 
@@ -34,6 +37,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         final data = jsonDecode(utf8.decode(res.bodyBytes));
         setState(() {
           recipe = data;
+          noteController.text = data['note'] ?? '';
           isLoading = false;
         });
       } else {
@@ -50,6 +54,42 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     }
   }
 
+  Future<void> _saveNote() async {
+    final newNote = noteController.text;
+
+    try {
+      final url = Uri.parse('$BASE_URL/recipes/${widget.id}');
+      final res = await http.patch(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'note': newNote}),
+      );
+
+      if (res.statusCode == 200) {
+        setState(() {
+          recipe!['note'] = newNote;
+        });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('노트가 저장되었습니다.')));
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('노트 저장에 실패했습니다.')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('네트워크 오류가 발생했습니다.')));
+    }
+  }
+
+  @override
+  void dispose() {
+    noteController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -60,13 +100,11 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       return const Scaffold(body: Center(child: Text('레시피를 불러오지 못했습니다.')));
     }
 
-    final thumbnailUrl = recipe!['thumbnailUrl'] ?? '';
     final title = recipe!['title'] ?? '';
     final description = recipe!['description'] ?? '';
     final youtuber = recipe!['youtuber'] ?? '';
     final views = recipe!['view_count']?.toString() ?? '';
     final published = recipe!['published_at'] ?? '';
-    final note = recipe!['note'] ?? '작성된 노트가 없습니다.';
 
     return Scaffold(
       appBar: AppBar(
@@ -96,13 +134,11 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
               child: buildYoutubeIframe(recipe!['id']),
             ),
             const SizedBox(height: 16),
-            // 제목
             Text(
               title,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            // 작성자 및 조회수, 업로드 정보
             Row(
               children: [
                 Text(
@@ -122,16 +158,13 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
               ],
             ),
             const SizedBox(height: 16),
-            // 설명
             Text(description, style: const TextStyle(fontSize: 14)),
             const SizedBox(height: 24),
-            // 나의 레시피 노트 제목
             const Text(
               '나의 레시피 노트',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            // 노트 내용
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -139,7 +172,23 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                 border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(note, style: const TextStyle(fontSize: 14)),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: noteController,
+                    maxLines: null,
+                    decoration: const InputDecoration(
+                      hintText: '나만의 레시피를 작성해보세요!',
+                      border: InputBorder.none,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: _saveNote,
+                    child: const Text('저장하기'),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

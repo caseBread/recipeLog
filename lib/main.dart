@@ -24,9 +24,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: isLoggedIn ? '/home' : '/login',
       routes: {
-        '/': (context) => RootPage(isLoggedIn: isLoggedIn),
+        '/': (context) => const HomePage(),
         '/login': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),
         '/myrecipe': (context) => const MyRecipePage(),
@@ -70,9 +69,7 @@ class RootPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // 로그인 여부에 따라 pushReplacement
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isLoggedIn) {
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
+      if (!isLoggedIn) {
         Navigator.pushReplacementNamed(context, '/login');
       }
     });

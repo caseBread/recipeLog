@@ -2,19 +2,30 @@ import 'package:flutter/material.dart';
 
 class CommonBottomNav extends StatelessWidget {
   final int currentIndex;
-  final ValueChanged<int> onTap;
 
-  const CommonBottomNav({
-    super.key,
-    required this.currentIndex,
-    required this.onTap,
-  });
+  const CommonBottomNav({super.key, required this.currentIndex});
+
+  void _onTap(BuildContext context, int index) {
+    if (index == currentIndex) return;
+
+    switch (index) {
+      case 0:
+        Navigator.pushNamed(context, '/home');
+        break;
+      case 1:
+        Navigator.pushNamed(context, '/search');
+        break;
+      case 2:
+        Navigator.pushNamed(context, '/myrecipe');
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: currentIndex,
-      onTap: onTap,
+      onTap: (index) => _onTap(context, index),
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.grey,
       backgroundColor: Colors.white,

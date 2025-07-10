@@ -10,12 +10,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
+  final TextEditingController _searchController = TextEditingController();
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  void _onSearchSubmit(String query) {
+    if (query.trim().isEmpty) return;
+
+    final encodedQuery = Uri.encodeComponent(query);
+    final targetPath = '/search?q=$encodedQuery';
+
+    Navigator.pushNamed(context, targetPath);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -51,6 +60,7 @@ class _HomePageState extends State<HomePage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: TextField(
+          controller: _searchController,
           decoration: InputDecoration(
             hintText: '레시피를 검색해주세요.',
             prefixIcon: const Icon(Icons.search),
@@ -65,12 +75,10 @@ class _HomePageState extends State<HomePage> {
               borderSide: BorderSide.none,
             ),
           ),
+          onSubmitted: _onSearchSubmit,
         ),
       ),
-      bottomNavigationBar: CommonBottomNav(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
+      bottomNavigationBar: const CommonBottomNav(currentIndex: 0),
     );
   }
 }

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:recipe_log/pages/myrecipe_page.dart';
+import 'package:recipe_log/pages/search_page.dart';
 import 'package:recipe_log/utils/auth.utils.dart';
 import 'pages/login_page.dart';
 import 'pages/home_page.dart';
 
 Future<void> main() async {
+  usePathUrlStrategy();
   runApp(const MyApp());
 }
 
@@ -24,6 +28,23 @@ class MyApp extends StatelessWidget {
         '/': (context) => RootPage(isLoggedIn: isLoggedIn),
         '/login': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),
+        '/myrecipe': (context) => const MyRecipePage(),
+      },
+      onGenerateRoute: (settings) {
+        final uri = Uri.parse(settings.name ?? '');
+
+        if (uri.path == '/search') {
+          return MaterialPageRoute(
+            builder: (context) => const SearchPage(),
+            settings: settings,
+          );
+        }
+
+        // 알 수 없는 라우트 처리
+        return MaterialPageRoute(
+          builder: (context) =>
+              const Scaffold(body: Center(child: Text('Page not found'))),
+        );
       },
     );
   }

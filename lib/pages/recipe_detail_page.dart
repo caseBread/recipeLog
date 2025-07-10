@@ -30,14 +30,26 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
   Future<void> _fetchRecipeDetail() async {
     try {
-      final url = Uri.parse('$BASE_URL/recipes/${widget.id}');
-      final res = await http.get(url);
+      // 1️⃣ 레시피 정보 가져오기
+      final recipeUrl = Uri.parse('$BASE_URL/recipes/${widget.id}');
+      final recipeRes = await http.get(recipeUrl);
 
-      if (res.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(res.bodyBytes));
+      if (recipeRes.statusCode == 200) {
+        final recipeData = jsonDecode(utf8.decode(recipeRes.bodyBytes));
+
+        // 2️⃣ 노트 정보 가져오기
+        final noteUrl = Uri.parse('$BASE_URL/recipes/${widget.id}/note');
+        final noteRes = await http.get(noteUrl);
+
+        String noteContent = '';
+        if (noteRes.statusCode == 200) {
+          final noteData = jsonDecode(utf8.decode(noteRes.bodyBytes));
+          noteContent = noteData['content'] ?? '';
+        }
+
         setState(() {
-          recipe = data;
-          noteController.text = data['note'] ?? '';
+          recipe = recipeData;
+          noteController.text = noteContent;
           isLoading = false;
         });
       } else {
@@ -58,12 +70,14 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     final newNote = noteController.text;
 
     try {
-      final url = Uri.parse('$BASE_URL/recipes/${widget.id}');
-      final res = await http.patch(
+      final url = Uri.parse('$BASE_URL/recipes/${widget.id}/note');
+      final res = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'note': newNote}),
+        body: jsonEncode({'content': newNote}),
       );
+
+      if (!mounted) return; // ✅ context 사용 전에 체크
 
       if (res.statusCode == 200) {
         setState(() {
@@ -78,6 +92,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         ).showSnackBar(const SnackBar(content: Text('노트 저장에 실패했습니다.')));
       }
     } catch (e) {
+      if (!mounted) return; // ✅ context 사용 전에 체크
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('네트워크 오류가 발생했습니다.')));

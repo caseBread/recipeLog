@@ -4,6 +4,7 @@ import 'package:recipe_log/constants.dart';
 import 'package:recipe_log/utils/http_client.dart';
 import 'package:recipe_log/utils/youtubeIframe.utils.dart';
 import 'package:recipe_log/widgets/common_bottom_nav.dart';
+import 'package:recipe_log/widgets/myrecipe_dialog.dart';
 
 class RecipeDetailPage extends StatefulWidget {
   final String id;
@@ -32,7 +33,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     try {
       // 1️⃣ 레시피 정보 가져오기
       final recipeUrl = Uri.parse('$BASE_URL/recipes/${widget.id}');
-
       final recipeRes = await httpClient.get(recipeUrl);
 
       if (recipeRes.statusCode == 200) {
@@ -131,10 +131,45 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              // TODO: 레시피 추가하기 버튼 클릭 시 처리
+            onPressed: () async {
+              final youtubeId = widget.id;
+              final url = Uri.parse('$BASE_URL/myRecipes?youtubeId=$youtubeId');
+
+              try {
+                final res = await httpClient.post(
+                  url,
+                  headers: {'Content-Type': 'application/json'},
+                );
+
+                if (!context.mounted) return;
+
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                  // 기존 snackbar 대신 모달 다이얼로그 표시
+                  final shouldMove = await showAddedDialog(context);
+
+                  if (!context.mounted) return;
+
+                  if (shouldMove == true) {
+                    Navigator.pushNamed(context, '/myrecipe');
+                  }
+                } else {
+                  // 실패 시 처리
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '레시피 추가에 실패했습니다. (code: ${res.statusCode})',
+                      ),
+                    ),
+                  );
+                }
+              } catch (e) {
+                print('오류: $e');
+              }
             },
-            child: const Text('레시피 추가하기', style: TextStyle(color: Colors.blue)),
+            child: const Text(
+              '나의 레시피 추가하기',
+              style: TextStyle(color: Colors.blue),
+            ),
           ),
         ],
       ),

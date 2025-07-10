@@ -33,12 +33,13 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _fetchSearchResults(String q) async {
-    final url = Uri.parse('$BASE_URL/search?q=$q');
+    final url = Uri.parse('$BASE_URL/recipes?query=$q');
 
     try {
       final res = await http.get(url);
       if (res.statusCode == 200) {
         final data = jsonDecode(utf8.decode(res.bodyBytes));
+
         setState(() {
           searchResults = data;
         });
@@ -68,7 +69,8 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('검색결과')),
+      appBar: AppBar(title: const Text('검색결과'), backgroundColor: Colors.white),
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           Padding(

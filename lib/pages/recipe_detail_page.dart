@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:recipe_log/constants.dart';
+import 'package:recipe_log/utils/http_client.dart';
 import 'package:recipe_log/utils/youtubeIframe.utils.dart';
 import 'package:recipe_log/widgets/common_bottom_nav.dart';
 
@@ -32,14 +32,15 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     try {
       // 1️⃣ 레시피 정보 가져오기
       final recipeUrl = Uri.parse('$BASE_URL/recipes/${widget.id}');
-      final recipeRes = await http.get(recipeUrl);
+
+      final recipeRes = await httpClient.get(recipeUrl);
 
       if (recipeRes.statusCode == 200) {
         final recipeData = jsonDecode(utf8.decode(recipeRes.bodyBytes));
 
         // 2️⃣ 노트 정보 가져오기
         final noteUrl = Uri.parse('$BASE_URL/recipes/${widget.id}/note');
-        final noteRes = await http.get(noteUrl);
+        final noteRes = await httpClient.get(noteUrl);
 
         String noteContent = '';
         if (noteRes.statusCode == 200) {
@@ -71,7 +72,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
     try {
       final url = Uri.parse('$BASE_URL/recipes/${widget.id}/note');
-      final res = await http.post(
+      final res = await httpClient.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'content': newNote}),
@@ -79,7 +80,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
       if (!mounted) return; // ✅ context 사용 전에 체크
 
-      if (res.statusCode == 200) {
+      if (res.statusCode >= 200 && res.statusCode < 300) {
         setState(() {
           recipe!['note'] = newNote;
         });

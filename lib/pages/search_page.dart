@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:recipe_log/constants.dart';
+import 'package:recipe_log/utils/http_client.dart';
 import 'package:recipe_log/widgets/common_bottom_nav.dart';
 
 class SearchPage extends StatefulWidget {
@@ -41,7 +41,7 @@ class _SearchPageState extends State<SearchPage> {
     final url = Uri.parse('$BASE_URL/recipes?query=$q');
 
     try {
-      final res = await http.get(url);
+      final res = await httpClient.get(url);
       if (res.statusCode == 200) {
         final data = jsonDecode(utf8.decode(res.bodyBytes));
 

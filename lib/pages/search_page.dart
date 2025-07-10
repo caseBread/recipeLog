@@ -14,6 +14,7 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   String? query;
   List<dynamic> searchResults = [];
+  bool isLoading = false; // ✅ 추가
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -25,7 +26,7 @@ class _SearchPageState extends State<SearchPage> {
       query = q;
 
       setState(() {
-        _controller.text = q; // ✅ setState로 감싸야 UI 반영됨!
+        _controller.text = q;
       });
 
       _fetchSearchResults(q);
@@ -33,6 +34,10 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _fetchSearchResults(String q) async {
+    setState(() {
+      isLoading = true; // ✅ 검색 시작 시 로딩 true
+    });
+
     final url = Uri.parse('$BASE_URL/recipes?query=$q');
 
     try {
@@ -42,15 +47,18 @@ class _SearchPageState extends State<SearchPage> {
 
         setState(() {
           searchResults = data;
+          isLoading = false; // ✅ 완료 시 false
         });
       } else {
         setState(() {
           searchResults = [];
+          isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
         searchResults = [];
+        isLoading = false;
       });
     }
   }
@@ -97,7 +105,10 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
           Expanded(
-            child: searchResults.isEmpty
+            child:
+                isLoading // ✅ 로딩 중이면 로더 표시
+                ? const Center(child: CircularProgressIndicator())
+                : searchResults.isEmpty
                 ? const Center(child: Text('검색 결과가 없습니다.'))
                 : ListView.separated(
                     itemCount: searchResults.length,
@@ -125,7 +136,10 @@ class _SearchPageState extends State<SearchPage> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         onTap: () {
-                          // TODO: 상세 페이지 이동 처리
+                          final id = item['id'];
+                          if (id != null) {
+                            Navigator.pushNamed(context, '/recipes/$id');
+                          }
                         },
                       );
                     },

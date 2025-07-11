@@ -1,1 +1,1 @@
-const String BASE_URL = "http://localhost:3000";
+const String BASE_URL = "https://f5d983817065.ngrok-free.app";

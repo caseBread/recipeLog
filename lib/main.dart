@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:recipe_log/auth_guard.dart';
 import 'package:recipe_log/pages/myrecipe_page.dart';
 import 'package:recipe_log/pages/recipe_detail_page.dart';
 import 'package:recipe_log/pages/search_page.dart';
@@ -20,15 +21,15 @@ class MyApp extends StatelessWidget {
     final bool isLoggedIn = checkIsLoggedIn();
 
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '레시피 노트',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       routes: {
-        '/': (context) => const HomePage(),
-        '/login': (context) => const LoginPage(),
-        '/home': (context) => const HomePage(),
-        '/myrecipe': (context) => const MyRecipePage(),
+        '/': (context) => RootPage(isLoggedIn: isLoggedIn),
+        '/login': (context) => LoginPage(),
+        '/home': (context) => HomePage(),
+        '/myrecipe': (context) => MyRecipePage(),
       },
       onGenerateRoute: (settings) {
         final uri = Uri.parse(settings.name ?? '');
@@ -71,6 +72,8 @@ class RootPage extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!isLoggedIn) {
         Navigator.pushReplacementNamed(context, '/login');
+      } else {
+        Navigator.pushReplacementNamed(context, '/home');
       }
     });
 

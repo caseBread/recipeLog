@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:recipe_log/constants.dart';
 import 'package:recipe_log/utils/http_client.dart';
 import 'package:recipe_log/utils/youtubeIframe.utils.dart';
@@ -31,14 +32,12 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
   Future<void> _fetchRecipeDetail() async {
     try {
-      // 1️⃣ 레시피 정보 가져오기
       final recipeUrl = Uri.parse('$BASE_URL/recipes/${widget.id}');
       final recipeRes = await httpClient.get(recipeUrl);
 
       if (recipeRes.statusCode >= 200 && recipeRes.statusCode < 300) {
         final recipeData = jsonDecode(utf8.decode(recipeRes.bodyBytes));
 
-        // 2️⃣ 노트 정보 가져오기
         final noteUrl = Uri.parse('$BASE_URL/recipes/${widget.id}/note');
         final noteRes = await httpClient.get(noteUrl);
 
@@ -78,7 +77,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         body: jsonEncode({'content': newNote}),
       );
 
-      if (!mounted) return; // ✅ context 사용 전에 체크
+      if (!mounted) return;
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
         setState(() {
@@ -93,7 +92,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         ).showSnackBar(const SnackBar(content: Text('노트 저장에 실패했습니다.')));
       }
     } catch (e) {
-      if (!mounted) return; // ✅ context 사용 전에 체크
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('네트워크 오류가 발생했습니다.')));
@@ -122,6 +121,17 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     final views = recipe!['view_count']?.toString() ?? '';
     final published = recipe!['published_at'] ?? '';
 
+    // views 천단위 쉼표
+    final viewsFormatted = NumberFormat.decimalPattern().format(
+      int.tryParse(views) ?? 0,
+    );
+
+    // published 날짜 yyyy.MM.dd
+    final publishedDate = DateTime.tryParse(published);
+    final publishedFormatted = publishedDate != null
+        ? '${publishedDate.year}.${publishedDate.month.toString().padLeft(2, '0')}.${publishedDate.day.toString().padLeft(2, '0')}'
+        : '';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(''),
@@ -144,16 +154,13 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                 if (!context.mounted) return;
 
                 if (res.statusCode >= 200 && res.statusCode < 300) {
-                  // 기존 snackbar 대신 모달 다이얼로그 표시
                   final shouldMove = await showAddedDialog(context);
-
                   if (!context.mounted) return;
 
                   if (shouldMove == true) {
                     Navigator.pushNamed(context, '/myrecipe');
                   }
                 } else {
-                  // 실패 시 처리
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -198,12 +205,12 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '· $views views',
+                  '· $viewsFormatted views',
                   style: const TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '· $published',
+                  '· $publishedFormatted',
                   style: const TextStyle(color: Colors.grey),
                 ),
               ],

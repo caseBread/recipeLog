@@ -1,16 +1,20 @@
-# recipe_log
+# Flutter App
 
-A new Flutter project.
+Flutter 기반의 애플리케이션입니다.
 
-## Getting Started
+## 🚀 로컬 실행 방법
 
-This project is a starting point for a Flutter application.
+아래 명령어를 실행하면 개발 모드에서 앱을 실행할 수 있습니다.
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+flutter run
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 빌드 실행 방법
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+npm install -g serve
+flutter build web
+cd build/web
+npx serve -s .
+```
